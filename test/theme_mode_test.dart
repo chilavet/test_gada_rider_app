@@ -6,6 +6,8 @@ import 'package:test_gada_rider_app/screens/profile/user_profile_screen.dart';
 import 'package:test_gada_rider_app/state/rider_scope.dart';
 import 'package:test_gada_rider_app/state/rider_state.dart';
 
+import 'package:test_gada_rider_app/screens/profile/settings_screen.dart';
+
 void main() {
   test('RiderState toggles night/day mode', () {
     final state = RiderState();
@@ -28,7 +30,7 @@ void main() {
     expect(state.themeMode, equals(ThemeMode.system));
   });
 
-  testWidgets('UserProfileScreen displays Night & Day Mode section and switches themes', (tester) async {
+  testWidgets('SettingsScreen displays Night & Day Mode section and switches themes', (tester) async {
     final state = RiderState();
 
     await tester.pumpWidget(
@@ -38,12 +40,12 @@ void main() {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: state.themeMode,
-          home: const UserProfileScreen(),
+          home: const SettingsScreen(),
         ),
       ),
     );
 
-    expect(find.text('Display & Theme Mode'), findsOneWidget);
+    expect(find.text('Display & Appearance'), findsOneWidget);
     expect(find.text('Night & Day Mode'), findsOneWidget);
     expect(find.text('Day'), findsOneWidget);
     expect(find.text('Night'), findsOneWidget);
@@ -60,6 +62,41 @@ void main() {
     await tester.pump();
     expect(state.themeMode, equals(ThemeMode.light));
     expect(state.isNightMode, isFalse);
+  });
+
+  testWidgets('UserProfileScreen navigates to SettingsScreen when Settings is tapped', (tester) async {
+    final state = RiderState();
+
+    await tester.pumpWidget(
+      RiderScope(
+        state: state,
+        child: MaterialApp(
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: state.themeMode,
+          home: const UserProfileScreen(),
+        ),
+      ),
+    );
+
+    expect(find.text('Settings'), findsOneWidget);
+
+    // Scroll until Settings is in view inside SingleChildScrollView
+    await tester.scrollUntilVisible(
+      find.text('Settings'),
+      50,
+      scrollable: find.byType(Scrollable),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Day Mode'), findsOneWidget);
+
+    // Tap Settings tile to open SettingsScreen
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Display & Appearance'), findsOneWidget);
+    expect(find.text('Night & Day Mode'), findsOneWidget);
   });
 
   testWidgets('RiderHomeScreen top bar quick toggle switches Night/Day mode', (tester) async {
