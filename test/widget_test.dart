@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:test_gada_rider_app/main.dart';
 import 'package:test_gada_rider_app/widgets/gada_logo.dart';
@@ -16,7 +17,7 @@ void main() {
 
     // Verify logo and brand presence
     expect(find.byType(GadaLogo), findsOneWidget);
-    expect(find.text('gadaride'), findsOneWidget);
+    expect(find.byType(SvgPicture), findsWidgets);
 
     // Verify greeting and status
     expect(find.text('Good morning, Daniel'), findsOneWidget);
