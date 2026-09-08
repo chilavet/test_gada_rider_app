@@ -126,4 +126,27 @@ void main() {
     expect(find.text('Personal Information'), findsOneWidget);
     expect(find.text('Operational & Vehicle Details'), findsOneWidget);
   });
+
+  testWidgets('UserProfileScreen renders Log Out / Switch Account with clearance above bottom bar', (tester) async {
+    final state = RiderState();
+
+    await tester.pumpWidget(
+      RiderScope(
+        state: state,
+        child: MaterialApp(
+          theme: AppTheme.lightTheme,
+          home: const Scaffold(
+            body: UserProfileScreen(),
+          ),
+        ),
+      ),
+    );
+
+    // Scroll to the very bottom
+    await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -600));
+    await tester.pumpAndSettle();
+
+    // Verify "Log Out / Switch Account" is visible and in view
+    expect(find.text('Log Out / Switch Account'), findsOneWidget);
+  });
 }
