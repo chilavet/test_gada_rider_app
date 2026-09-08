@@ -172,6 +172,7 @@ class RiderJobsScreen extends StatelessWidget {
                 ],
               ),
             ),
+            SizedBox(height: 120 + MediaQuery.of(context).padding.bottom),
           ],
         ),
       ),

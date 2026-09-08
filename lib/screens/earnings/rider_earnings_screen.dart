@@ -240,7 +240,7 @@ class _RiderEarningsScreenState extends State<RiderEarningsScreen> {
             _payoutItem('#ORD-3995', '11:20 AM', 3100),
             _payoutItem('#ORD-3995', '11:20 AM', 3100),
 
-            const SizedBox(height: 24),
+            SizedBox(height: 120 + MediaQuery.of(context).padding.bottom),
           ],
         ),
       ),

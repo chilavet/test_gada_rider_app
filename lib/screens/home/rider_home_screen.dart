@@ -429,7 +429,7 @@ class RiderHomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 120 + MediaQuery.of(context).padding.bottom),
             ],
           ),
         ),
