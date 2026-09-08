@@ -7,11 +7,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 class GadaLogo extends StatelessWidget {
   final double size; // Base height in pixels
   final bool iconOnly;
+  final bool? isDark;
 
   const GadaLogo({
     super.key,
     this.size = 28,
     this.iconOnly = false,
+    this.isDark,
   });
 
   static const String _iconSvg = '''
@@ -46,6 +48,8 @@ class GadaLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final effectiveIsDark = isDark ?? (Theme.of(context).brightness == Brightness.dark);
+
     if (iconOnly) {
       final width = size * (44.4764 / 41.8779);
       return SvgPicture.string(
@@ -57,8 +61,18 @@ class GadaLogo extends StatelessWidget {
     }
 
     final width = size * (239.538 / 45.032);
+    final svgContent = effectiveIsDark
+        ? _fullLogoSvg.replaceFirst(
+            '<g transform="translate(50.716, 0)">',
+            '<g transform="translate(50.716, 0)" fill="#F8F9FA">',
+          ).replaceAll(
+            '<g transform="translate(50.716, 0)" fill="#F8F9FA">\n    <path d="M20.0053',
+            '<g transform="translate(50.716, 0)">\n    <path d="M20.0053',
+          ).replaceAll('fill="#121212"/>', 'fill="#F8F9FA"/>')
+        : _fullLogoSvg;
+
     return SvgPicture.string(
-      _fullLogoSvg,
+      svgContent,
       width: width,
       height: size,
       fit: BoxFit.contain,

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../models/delivery_job.dart';
 import '../models/order_item.dart';
 import '../models/rider_stats.dart';
@@ -13,6 +13,9 @@ class RiderState extends ChangeNotifier {
   final List<OrderItem> _shoppingBasket = List.from(MockData.defaultMarketBasket);
   RiderStats _stats = MockData.defaultStats;
   final List<PayoutRecord> _payouts = List.from(MockData.payoutLedger);
+
+  // Theme Mode (Day / Night Mode)
+  ThemeMode _themeMode = ThemeMode.light;
 
   // Auth & KYC State
   bool _isAuthenticated = true;
@@ -33,6 +36,9 @@ class RiderState extends ChangeNotifier {
   RiderStats get stats => _stats;
   List<PayoutRecord> get payouts => List.unmodifiable(_payouts);
 
+  ThemeMode get themeMode => _themeMode;
+  bool get isNightMode => _themeMode == ThemeMode.dark;
+
   bool get isAuthenticated => _isAuthenticated;
   String get userPhoneNumber => _userPhoneNumber;
   bool get kycPersonalInfoDone => _kycPersonalInfoDone;
@@ -40,6 +46,18 @@ class RiderState extends ChangeNotifier {
   bool get kycVehicleDone => _kycVehicleDone;
   bool get kycBankDone => _kycBankDone;
   List<String> get appliedBikes => List.unmodifiable(_appliedBikes);
+
+  void setThemeMode(ThemeMode mode) {
+    if (_themeMode != mode) {
+      _themeMode = mode;
+      notifyListeners();
+    }
+  }
+
+  void toggleNightMode() {
+    _themeMode = _themeMode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    notifyListeners();
+  }
 
   void authenticate(String phone) {
     _userPhoneNumber = phone;

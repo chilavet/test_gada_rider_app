@@ -43,31 +43,58 @@ class RiderHomeScreen extends StatelessWidget {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.getBackground(context),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Top Bar: Gada Logo & Notification Bell (Figma 805:11391)
+              // Top Bar: Gada Logo & Night/Day Toggle + Notification Bell (Figma 805:11391)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Flexible(child: GadaLogo(size: 26)),
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.cardBorder),
-                    ),
-                    child: const Icon(
-                      Icons.notifications_none_rounded,
-                      color: AppColors.textPrimary,
-                      size: 22,
-                    ),
+                  Row(
+                    children: [
+                      // Quick Night / Day Mode Toggle Button
+                      GestureDetector(
+                        onTap: () => state.toggleNightMode(),
+                        child: Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: AppColors.getSurface(context),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.getCardBorder(context)),
+                          ),
+                          child: Icon(
+                            state.isNightMode
+                                ? Icons.wb_sunny_rounded
+                                : Icons.nightlight_round,
+                            color: state.isNightMode
+                                ? const Color(0xFFF59E0B)
+                                : AppColors.getTextPrimary(context),
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: AppColors.getSurface(context),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.getCardBorder(context)),
+                        ),
+                        child: Icon(
+                          Icons.notifications_none_rounded,
+                          color: AppColors.getTextPrimary(context),
+                          size: 22,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

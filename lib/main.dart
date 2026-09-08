@@ -29,11 +29,18 @@ class _TestGadaRiderAppState extends State<TestGadaRiderApp> {
   Widget build(BuildContext context) {
     return RiderScope(
       state: _riderState,
-      child: MaterialApp(
-        title: 'test_gada Rider App',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        home: const MainRiderShell(),
+      child: ListenableBuilder(
+        listenable: _riderState,
+        builder: (context, _) {
+          return MaterialApp(
+            title: 'test_gada Rider App',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: _riderState.themeMode,
+            home: const MainRiderShell(),
+          );
+        },
       ),
     );
   }

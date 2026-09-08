@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
+import 'earnings/rider_earnings_screen.dart';
 import 'home/rider_home_screen.dart';
 import 'orders/rider_jobs_screen.dart';
-import 'earnings/rider_earnings_screen.dart';
 import 'profile/user_profile_screen.dart';
 
 class MainRiderShell extends StatefulWidget {
@@ -24,26 +24,28 @@ class _MainRiderShellState extends State<MainRiderShell> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.getBackground(context),
+      extendBody: true,
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
       ),
-      bottomNavigationBar: Container(
-        color: AppColors.background,
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-        child: SafeArea(
-          top: false,
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            height: 68,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.getSurface(context),
               borderRadius: BorderRadius.circular(36),
-              border: Border.all(color: const Color(0xFFE5E7EB)),
+              border: Border.all(color: AppColors.getCardBorder(context)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
+                  color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.06),
                   blurRadius: 16,
                   offset: const Offset(0, 4),
                 ),
@@ -66,6 +68,8 @@ class _MainRiderShellState extends State<MainRiderShell> {
 
   Widget _navItem(int index, IconData outlineIcon, IconData solidIcon, String label) {
     final isSelected = _currentIndex == index;
+    final activeBg = AppColors.getSurfaceElevated(context);
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => setState(() => _currentIndex = index),
@@ -73,7 +77,7 @@ class _MainRiderShellState extends State<MainRiderShell> {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFF3F4F6) : Colors.transparent,
+          color: isSelected ? activeBg : Colors.transparent,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Column(
@@ -82,13 +86,13 @@ class _MainRiderShellState extends State<MainRiderShell> {
             Icon(
               isSelected ? solidIcon : outlineIcon,
               size: 20,
-              color: AppColors.textPrimary,
+              color: isSelected ? AppColors.primary : AppColors.getTextPrimary(context),
             ),
             const SizedBox(height: 3),
             Text(
               label,
               style: TextStyle(
-                color: AppColors.textPrimary,
+                color: isSelected ? AppColors.primary : AppColors.getTextPrimary(context),
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
@@ -101,6 +105,8 @@ class _MainRiderShellState extends State<MainRiderShell> {
 
   Widget _avatarNavItem(int index) {
     final isSelected = _currentIndex == index;
+    final activeBg = AppColors.getSurfaceElevated(context);
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => setState(() => _currentIndex = index),
@@ -108,7 +114,7 @@ class _MainRiderShellState extends State<MainRiderShell> {
         duration: const Duration(milliseconds: 180),
         padding: const EdgeInsets.symmetric(vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFF3F4F6) : Colors.transparent,
+          color: isSelected ? activeBg : Colors.transparent,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Column(
@@ -121,7 +127,7 @@ class _MainRiderShellState extends State<MainRiderShell> {
                 shape: BoxShape.circle,
                 color: const Color(0xFFE8DCC4),
                 border: isSelected
-                    ? Border.all(color: AppColors.darkCta, width: 1.5)
+                    ? Border.all(color: AppColors.primary, width: 1.5)
                     : null,
               ),
               child: const Center(
@@ -132,7 +138,7 @@ class _MainRiderShellState extends State<MainRiderShell> {
             Text(
               'Profile',
               style: TextStyle(
-                color: AppColors.textPrimary,
+                color: isSelected ? AppColors.primary : AppColors.getTextPrimary(context),
                 fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
               ),
