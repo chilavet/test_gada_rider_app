@@ -6,6 +6,7 @@ import '../../state/rider_scope.dart';
 import '../auth/get_started_screen.dart';
 import '../auth/kyc_documents_screen.dart';
 import '../lease/lease_home_screen.dart';
+import 'profile_info_screen.dart';
 import 'settings_screen.dart';
 
 class UserProfileScreen extends StatelessWidget {
@@ -21,7 +22,7 @@ class UserProfileScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.getBackground(context),
         title: Text(
-          'Hello, Allen',
+          'Hello, ${state.userProfile.firstName}',
           style: TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.w800,
@@ -51,7 +52,15 @@ class UserProfileScreen extends StatelessWidget {
               context: context,
               icon: Icons.person_outline_rounded,
               title: 'Profile Info',
-              onTap: () {},
+              trailingText: state.userProfile.fullName,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ProfileInfoScreen(),
+                  ),
+                );
+              },
             ),
             _menuTile(
               context: context,

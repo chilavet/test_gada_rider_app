@@ -122,4 +122,20 @@ class MockData {
       timestamp: DateTime.now().subtract(const Duration(days: 1, hours: 3)),
     ),
   ];
+
+  static const UserProfile defaultUserProfile = UserProfile(
+    id: 'GDA-RD-0428',
+    firstName: 'Allen',
+    lastName: 'Edgar',
+    phone: '080123456789',
+    email: 'allenedgar@gmail.com',
+    vehicleType: 'TVS HLX 150 (Motorbike)',
+    vehiclePlate: 'ABJ-892-XY',
+    isKycVerified: true,
+    role: 'Rider',
+    isLeaseRider: false,
+    memberSince: 'September 2023',
+    emergencyContact: '+234 802 345 6789 (Brother)',
+  );
 }
+

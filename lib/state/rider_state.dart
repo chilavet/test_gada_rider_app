@@ -28,6 +28,9 @@ class RiderState extends ChangeNotifier {
   // Lease State
   final List<String> _appliedBikes = [];
 
+  // User Profile
+  UserProfile _userProfile = MockData.defaultUserProfile;
+
   bool get isOnline => _isOnline;
   String get activeRole => _activeRole;
   DeliveryJob? get activeJob => _activeJob;
@@ -35,6 +38,8 @@ class RiderState extends ChangeNotifier {
   List<OrderItem> get shoppingBasket => List.unmodifiable(_shoppingBasket);
   RiderStats get stats => _stats;
   List<PayoutRecord> get payouts => List.unmodifiable(_payouts);
+
+  UserProfile get userProfile => _userProfile;
 
   ThemeMode get themeMode => _themeMode;
   bool get isNightMode => _themeMode == ThemeMode.dark;
@@ -46,6 +51,30 @@ class RiderState extends ChangeNotifier {
   bool get kycVehicleDone => _kycVehicleDone;
   bool get kycBankDone => _kycBankDone;
   List<String> get appliedBikes => List.unmodifiable(_appliedBikes);
+
+  void updateUserProfile({
+    String? firstName,
+    String? lastName,
+    String? phone,
+    String? email,
+    String? vehicleType,
+    String? vehiclePlate,
+    String? emergencyContact,
+  }) {
+    _userProfile = _userProfile.copyWith(
+      firstName: firstName,
+      lastName: lastName,
+      phone: phone,
+      email: email,
+      vehicleType: vehicleType,
+      vehiclePlate: vehiclePlate,
+      emergencyContact: emergencyContact,
+    );
+    if (phone != null) {
+      _userPhoneNumber = phone;
+    }
+    notifyListeners();
+  }
 
   void setThemeMode(ThemeMode mode) {
     if (_themeMode != mode) {
