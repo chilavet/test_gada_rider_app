@@ -15,8 +15,12 @@ void main() {
     await tester.pumpWidget(const TestGadaRiderApp());
     await tester.pump(const Duration(milliseconds: 200));
 
-    // Verify logo and brand presence
+    // Verify initial splash presence
     expect(find.byType(GadaLogo), findsOneWidget);
+
+    // Tap to immediately advance through splash screen
+    await tester.tap(find.byType(GadaLogo));
+    await tester.pumpAndSettle();
     expect(find.byType(SvgPicture), findsWidgets);
 
     // Verify greeting and status

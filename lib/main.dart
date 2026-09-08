@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
-import 'screens/main_rider_shell.dart';
+import 'screens/splash/splash_brand_screen.dart';
 import 'state/rider_scope.dart';
 import 'state/rider_state.dart';
 
@@ -38,7 +38,7 @@ class _TestGadaRiderAppState extends State<TestGadaRiderApp> {
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: _riderState.themeMode,
-            home: const MainRiderShell(),
+            home: const SplashBrandScreen(),
           );
         },
       ),
