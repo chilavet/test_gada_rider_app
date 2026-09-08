@@ -32,7 +32,7 @@ class _TestGadaRiderAppState extends State<TestGadaRiderApp> {
       child: MaterialApp(
         title: 'test_gada Rider App',
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.darkTheme,
+        theme: AppTheme.lightTheme,
         home: const MainRiderShell(),
       ),
     );

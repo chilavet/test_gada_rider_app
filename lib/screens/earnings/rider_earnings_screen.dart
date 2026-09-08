@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_typography.dart';
 import '../../state/rider_scope.dart';
 
 class RiderEarningsScreen extends StatefulWidget {
@@ -12,60 +11,61 @@ class RiderEarningsScreen extends StatefulWidget {
 }
 
 class _RiderEarningsScreenState extends State<RiderEarningsScreen> {
-  String _selectedPeriod = 'Today';
+  String _selectedPeriod = 'This Week';
 
   @override
   Widget build(BuildContext context) {
     final state = RiderScope.of(context);
     final stats = state.stats;
-    final payouts = state.payouts;
     final currency = NumberFormat.currency(locale: 'en_NG', symbol: '₦ ', decimalDigits: 0);
 
-    final displayEarnings = _selectedPeriod == 'Today' ? stats.todayEarnings : stats.weeklyEarnings;
-    final displayTrips = _selectedPeriod == 'Today' ? stats.todayTrips : stats.weeklyTrips;
-
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('Earnings & Wallet'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.history_rounded),
-            onPressed: () {},
-          ),
-        ],
+        title: const Text('Earnings', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 24)),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Period Selector Chips
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
+            const Text(
+              'Track your earnings and payouts',
+              style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+
+            // Segmented Control [ Today | This Week | This Month ] (Figma 822:14189)
+            Container(
+              padding: const EdgeInsets.all(4),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEBECEF),
+                borderRadius: BorderRadius.circular(14),
+              ),
               child: Row(
                 children: ['Today', 'This Week', 'This Month'].map((period) {
                   final isSelected = _selectedPeriod == period;
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Text(period),
-                      selected: isSelected,
-                      selectedColor: AppColors.primary,
-                      backgroundColor: AppColors.surface,
-                      labelStyle: TextStyle(
-                        color: isSelected ? Colors.white : AppColors.textSecondary,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        side: BorderSide(
-                          color: isSelected ? AppColors.primary : AppColors.cardBorder,
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () => setState(() => _selectedPeriod = period),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        decoration: BoxDecoration(
+                          color: isSelected ? AppColors.darkCta : Colors.transparent,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            period,
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : AppColors.textSecondary,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
                         ),
                       ),
-                      onSelected: (val) {
-                        if (val) setState(() => _selectedPeriod = period);
-                      },
                     ),
                   );
                 }).toList(),
@@ -73,155 +73,250 @@ class _RiderEarningsScreenState extends State<RiderEarningsScreen> {
             ),
             const SizedBox(height: 18),
 
-            // Summary Card
+            // Black Total Earned Banner
             Container(
-              padding: const EdgeInsets.all(22),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF221508), AppColors.surface],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                color: AppColors.darkCta,
+                borderRadius: BorderRadius.circular(20),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    '$_selectedPeriod Gross Earnings',
-                    style: AppTypography.labelSmall.copyWith(color: AppColors.textSecondary),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    currency.format(displayEarnings),
-                    style: AppTypography.displayLarge.copyWith(
-                      color: Colors.white,
-                      fontSize: 34,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 8,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: AppColors.onlineGreen.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            const Icon(Icons.check_circle_rounded, size: 14, color: AppColors.onlineGreen),
-                            const SizedBox(width: 4),
+                            const Icon(Icons.account_balance_wallet_outlined,
+                                color: Colors.white, size: 22),
+                            const SizedBox(width: 8),
                             Text(
-                              '$displayTrips Trips Completed',
-                              style: const TextStyle(
-                                color: AppColors.onlineGreen,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12,
+                              'Total earned',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceLight,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Text(
-                          'Wallet: ${currency.format(stats.walletBalance)}',
+                        const SizedBox(height: 10),
+                        Text(
+                          currency.format(stats.weeklyEarnings),
                           style: const TextStyle(
-                            color: AppColors.textPrimary,
-                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'This week • 2 Jul - 8 Jul',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.6),
                             fontSize: 12,
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Withdrawal request initiated to registered bank account.')),
-                      );
-                    },
-                    icon: const Icon(Icons.account_balance_rounded, size: 18),
-                    label: const Text('Withdraw Funds to Bank'),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(
+                      Icons.credit_card_rounded,
+                      color: Colors.white70,
+                      size: 38,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // Deliveries completed card
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.cardBorder),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF0F1F5),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.alt_route_rounded,
+                        color: AppColors.textPrimary, size: 22),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Deliveries completed',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${stats.weeklyTrips} deliveries',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: const BoxDecoration(
+                      color: AppColors.successBg,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.check_rounded,
+                        color: AppColors.onlineGreen, size: 18),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
 
-            // Payout Transaction History
-            const Text('Recent Payout History', style: AppTypography.headlineMedium),
-            const SizedBox(height: 12),
-
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: payouts.length,
-              separatorBuilder: (context, index) => const SizedBox(height: 10),
-              itemBuilder: (context, index) {
-                final p = payouts[index];
-                return Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.cardBorder),
+            // Payout history header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Payout history',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
                   ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: p.isCredit
-                              ? AppColors.onlineGreen.withValues(alpha: 0.12)
-                              : AppColors.surfaceLight,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          p.isCredit ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
-                          size: 16,
-                          color: p.isCredit ? AppColors.onlineGreen : AppColors.textSecondary,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(p.description, style: AppTypography.titleMedium),
-                            const SizedBox(height: 2),
-                            Text(
-                              '${p.orderId} • ${DateFormat('dd MMM, HH:mm').format(p.timestamp)}',
-                              style: AppTypography.labelSmall,
-                            ),
-                          ],
-                        ),
-                      ),
-                      Text(
-                        '${p.isCredit ? '+' : ''}${currency.format(p.amount)}',
-                        style: TextStyle(
-                          color: p.isCredit ? AppColors.onlineGreen : AppColors.textPrimary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
+                ),
+                TextButton(
+                  onPressed: () {},
+                  child: const Text(
+                    'View all',
+                    style: TextStyle(
+                      color: AppColors.darkCta,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
                   ),
-                );
-              },
+                ),
+              ],
             ),
+            const SizedBox(height: 8),
+
+            // Payout Items
+            _dateSectionHeader('12th July, 2026'),
+            _payoutItem('#ORD-3928', '9:15 AM', 2750),
+            _payoutItem('#ORD-4102', '1:30 PM', 850),
+            _payoutItem('#ORD-3871', '6:45 PM', 4200),
+
+            const SizedBox(height: 16),
+            _dateSectionHeader('17th August, 2026'),
+            _payoutItem('#ORD-4250', '8:00 AM', 1500),
+            _payoutItem('#ORD-3995', '11:20 AM', 3100),
+            _payoutItem('#ORD-3995', '11:20 AM', 3100),
+
+            const SizedBox(height: 24),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _dateSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 10),
+      child: Text(
+        title,
+        style: const TextStyle(
+          color: AppColors.textSecondary,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _payoutItem(String orderId, String time, double amount) {
+    final currency = NumberFormat.currency(locale: 'en_NG', symbol: '₦ ', decimalDigits: 0);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: const BoxDecoration(
+              color: Color(0xFFF0F1F5),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.arrow_upward_rounded,
+                size: 18, color: AppColors.textPrimary),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  orderId,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  time,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            currency.format(amount),
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ],
       ),
     );
   }

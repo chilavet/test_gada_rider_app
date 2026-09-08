@@ -7,7 +7,7 @@ class GadaLogo extends StatelessWidget {
 
   const GadaLogo({
     super.key,
-    this.size = 28,
+    this.size = 24,
     this.showBadge = true,
   });
 
@@ -20,79 +20,67 @@ class GadaLogo extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-        // Brand Mark Icon
-        Container(
-          width: size + 6,
-          height: size + 6,
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.35),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Center(
-            child: Icon(
-              Icons.electric_moped_rounded,
-              color: Colors.white,
-              size: size * 0.72,
-            ),
-          ),
-        ),
-        const SizedBox(width: 10),
-        // Logo Text
-        RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: 'gada',
-                style: TextStyle(
-                  fontSize: size,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.textPrimary,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              TextSpan(
-                text: 'ride',
-                style: TextStyle(
-                  fontSize: size,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.primary,
-                  letterSpacing: -0.5,
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (showBadge) ...[
-          const SizedBox(width: 8),
+          // Gada orange circular brandmark
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.4),
-                width: 1,
-              ),
+            width: size + 6,
+            height: size + 6,
+            decoration: const BoxDecoration(
+              color: AppColors.primary,
+              shape: BoxShape.circle,
             ),
-            child: const Text(
-              'TEST',
-              style: TextStyle(
-                color: AppColors.primaryLight,
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.8,
+            child: Center(
+              child: Container(
+                width: (size + 6) * 0.52,
+                height: (size + 6) * 0.52,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF101010),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    'g',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: size * 0.50,
+                      fontWeight: FontWeight.w900,
+                      height: 1.0,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
+          const SizedBox(width: 8),
+          // Logo Text "gadaride"
+          Text(
+            'gadaride',
+            style: TextStyle(
+              fontSize: size,
+              fontWeight: FontWeight.w800,
+              color: AppColors.textPrimary,
+              letterSpacing: -0.5,
+            ),
+          ),
+          if (showBadge) ...[
+            const SizedBox(width: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: const Text(
+                'TEST',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontSize: 9,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.6,
+                ),
+              ),
+            ),
+          ],
         ],
-      ],
       ),
     );
   }

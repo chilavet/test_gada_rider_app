@@ -24,7 +24,7 @@ class AppTypography {
 
   static const TextStyle headlineMedium = TextStyle(
     fontSize: 18,
-    fontWeight: FontWeight.w600,
+    fontWeight: FontWeight.w700,
     color: AppColors.textPrimary,
   );
 
@@ -55,8 +55,8 @@ class AppTypography {
   );
 
   static const TextStyle labelSmall = TextStyle(
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: FontWeight.w500,
-    color: AppColors.textTertiary,
+    color: AppColors.textSecondary,
   );
 }

@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_typography.dart';
 import '../../models/delivery_job.dart';
 import '../../state/rider_scope.dart';
 import '../../widgets/gada_logo.dart';
-import '../../widgets/status_indicator_pill.dart';
-import '../../widgets/metric_card.dart';
 import '../../widgets/job_alert_sheet.dart';
 import '../orders/delivery_map_screen.dart';
 
@@ -46,66 +43,87 @@ class RiderHomeScreen extends StatelessWidget {
     });
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header
+              // Top Bar: Gada Logo & Notification Bell (Figma 805:11391)
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Flexible(child: GadaLogo()),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.cardBorder),
-                        ),
-                        child: const Icon(
-                          Icons.notifications_none_rounded,
-                          color: AppColors.textPrimary,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.primaryContainer,
-                          border: Border.all(color: AppColors.primary, width: 1.5),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'TG',
-                            style: TextStyle(
-                              color: AppColors.primaryLight,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  const Flexible(child: GadaLogo(size: 26)),
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: const Icon(
+                      Icons.notifications_none_rounded,
+                      color: AppColors.textPrimary,
+                      size: 22,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 18),
 
-              // Dual-Role Segmented Selector [ Rider | Agent ]
+              // Greeting & Avatar
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Good morning, Daniel',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textPrimary,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Are you ready for your next delivery?',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: const Color(0xFFE8DCC4),
+                      border: Border.all(color: AppColors.cardBorder, width: 2),
+                    ),
+                    child: const Center(
+                      child: Text('🧔‍♂️', style: TextStyle(fontSize: 28)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+
+              // Segmented Role Switch [ Rider | Agent ]
               Container(
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.cardBorder),
+                  color: const Color(0xFFEBECEF),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
                   children: [
@@ -113,36 +131,25 @@ class RiderHomeScreen extends StatelessWidget {
                       child: GestureDetector(
                         onTap: () => state.switchRole('Rider'),
                         child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          duration: const Duration(milliseconds: 180),
+                          padding: const EdgeInsets.symmetric(vertical: 11),
                           decoration: BoxDecoration(
                             color: state.activeRole == 'Rider'
-                                ? AppColors.surfaceLight
+                                ? AppColors.darkCta
                                 : Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.delivery_dining_rounded,
-                                size: 18,
+                          child: Center(
+                            child: Text(
+                              'Rider',
+                              style: TextStyle(
                                 color: state.activeRole == 'Rider'
-                                    ? AppColors.primary
-                                    : AppColors.textTertiary,
+                                    ? Colors.white
+                                    : AppColors.textSecondary,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Rider Mode',
-                                style: TextStyle(
-                                  color: state.activeRole == 'Rider'
-                                      ? AppColors.textPrimary
-                                      : AppColors.textTertiary,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
@@ -151,36 +158,25 @@ class RiderHomeScreen extends StatelessWidget {
                       child: GestureDetector(
                         onTap: () => state.switchRole('Agent'),
                         child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          duration: const Duration(milliseconds: 180),
+                          padding: const EdgeInsets.symmetric(vertical: 11),
                           decoration: BoxDecoration(
                             color: state.activeRole == 'Agent'
-                                ? AppColors.surfaceLight
+                                ? AppColors.darkCta
                                 : Colors.transparent,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.shopping_basket_rounded,
-                                size: 18,
+                          child: Center(
+                            child: Text(
+                              'Agent',
+                              style: TextStyle(
                                 color: state.activeRole == 'Agent'
-                                    ? AppColors.primary
-                                    : AppColors.textTertiary,
+                                    ? Colors.white
+                                    : AppColors.textSecondary,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Market Agent',
-                                style: TextStyle(
-                                  color: state.activeRole == 'Agent'
-                                      ? AppColors.textPrimary
-                                      : AppColors.textTertiary,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
@@ -188,116 +184,171 @@ class RiderHomeScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Availability & Dispatch Control Card
+              // Status Card (Black card matching Figma)
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      state.isOnline
-                          ? const Color(0xFF1B2A22)
-                          : AppColors.surface,
-                      AppColors.surface,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(
-                    color: state.isOnline
-                        ? AppColors.onlineGreen.withValues(alpha: 0.35)
-                        : AppColors.cardBorder,
-                    width: 1.2,
-                  ),
+                  color: AppColors.darkCta,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'You are',
+                            style: TextStyle(
+                              color: Color(0xFFB0B0B0),
+                              fontSize: 12,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: BoxDecoration(
+                                  color: state.isOnline
+                                      ? AppColors.onlineGreen
+                                      : AppColors.offlineGray,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                state.isOnline ? 'Online' : 'Offline',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'You must be online to receive jobs',
+                            style: TextStyle(
+                              color: Color(0xFF8E8E93),
+                              fontSize: 11,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // High-contrast toggle switch
+                    Switch.adaptive(
+                      value: state.isOnline,
+                      activeThumbColor: Colors.black,
+                      activeTrackColor: Colors.white,
+                      inactiveThumbColor: Colors.white,
+                      inactiveTrackColor: const Color(0xFF48484A),
+                      onChanged: (_) => state.toggleOnline(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Current Status Card (White border card)
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: AppColors.cardBorder),
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        StatusIndicatorPill(
-                          isOnline: state.isOnline,
-                          onTap: state.toggleOnline,
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.textTertiary,
+                              style: BorderStyle.solid,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.access_time_rounded,
+                              size: 24,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
                         ),
-                        Switch.adaptive(
-                          value: state.isOnline,
-                          activeThumbColor: AppColors.onlineGreen,
-                          onChanged: (_) => state.toggleOnline(),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Current status',
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                state.activeJob != null &&
+                                        state.activeJob!.status != JobStatus.delivered &&
+                                        state.activeJob!.status != JobStatus.incomingAlert
+                                    ? 'Active Delivery: ${state.activeJob!.dropoffName}'
+                                    : 'Waiting for jobs',
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                state.activeJob != null &&
+                                        state.activeJob!.status != JobStatus.delivered &&
+                                        state.activeJob!.status != JobStatus.incomingAlert
+                                    ? 'Tap below to navigate the route'
+                                    : "We'll notify you when a job is available",
+                                style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
                     if (state.activeJob != null &&
-                        state.activeJob!.status != JobStatus.incomingAlert &&
-                        state.activeJob!.status != JobStatus.delivered) ...[
-                      // Active order banner
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: AppColors.primary.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'ACTIVE DELIVERY IN PROGRESS',
-                                  style: TextStyle(
-                                    color: AppColors.primaryLight,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                                Text(
-                                  state.activeJob!.orderNumber,
-                                  style: const TextStyle(
-                                    color: AppColors.textPrimary,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
+                        state.activeJob!.status != JobStatus.delivered &&
+                        state.activeJob!.status != JobStatus.incomingAlert) ...[
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const DeliveryMapScreen(),
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Dropoff: ${state.activeJob!.dropoffName}',
-                              style: AppTypography.titleMedium,
-                            ),
-                            const SizedBox(height: 12),
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const DeliveryMapScreen(),
-                                  ),
-                                );
-                              },
-                              icon: const Icon(Icons.navigation_rounded, size: 18),
-                              label: const Text('Open Active Route Map'),
-                            ),
-                          ],
-                        ),
+                          );
+                        },
+                        icon: const Icon(Icons.navigation_rounded, size: 18),
+                        label: const Text('Open Active Route Map'),
                       ),
                     ] else ...[
-                      Text(
-                        state.isOnline
-                            ? 'Looking for nearby delivery orders...'
-                            : 'Go online to start receiving delivery requests',
-                        style: AppTypography.bodyLarge,
-                      ),
-                      const SizedBox(height: 14),
-                      // Simulate Incoming Job Button
                       OutlinedButton.icon(
                         onPressed: state.simulateIncomingJob,
                         icon: const Icon(Icons.bolt_rounded, color: AppColors.primary),
@@ -309,106 +360,104 @@ class RiderHomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Today's Performance Metrics Title
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Expanded(
-                    child: Text(
-                      "Today's Activity",
-                      style: AppTypography.headlineMedium,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    DateFormat('EEE, d MMM').format(DateTime.now()),
-                    style: AppTypography.labelSmall,
-                  ),
-                ],
+              // Section Header: Today's activities
+              const Text(
+                "Today's activities",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
+                ),
               ),
               const SizedBox(height: 14),
 
-              // 2x2 Metrics Grid
+              // 2x2 Activity Grid matching Figma
               GridView.count(
                 crossAxisCount: 2,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 12,
-                childAspectRatio: 1.2,
+                childAspectRatio: 1.15,
                 children: [
-                  MetricCard(
-                    title: 'EARNINGS',
+                  _activityCard(
+                    icon: Icons.account_balance_wallet_outlined,
+                    title: "Today's earnings",
                     value: currency.format(stats.todayEarnings),
-                    subtitle: '+₦1,850 vs yesterday',
-                    icon: Icons.account_balance_wallet_rounded,
-                    accentColor: AppColors.primary,
                   ),
-                  MetricCard(
-                    title: 'COMPLETED TRIPS',
+                  _activityCard(
+                    icon: Icons.route_outlined,
+                    title: 'Trips completed',
                     value: '${stats.todayTrips}',
-                    subtitle: '100% acceptance',
-                    icon: Icons.check_circle_rounded,
-                    accentColor: AppColors.onlineGreen,
                   ),
-                  MetricCard(
-                    title: 'DISTANCE COVERED',
-                    value: '${stats.todayDistanceKm.toStringAsFixed(1)} km',
-                    subtitle: 'Avg 1.1 km/trip',
-                    icon: Icons.speed_rounded,
-                    accentColor: AppColors.info,
+                  _activityCard(
+                    icon: Icons.alt_route_rounded,
+                    title: 'Distance covered',
+                    value: '${stats.todayDistanceKm.toInt()}',
                   ),
-                  MetricCard(
-                    title: 'ONLINE HOURS',
+                  _activityCard(
+                    icon: Icons.access_time_outlined,
+                    title: 'Active hours',
                     value: stats.todayActiveHours,
-                    subtitle: 'Active now',
-                    icon: Icons.timer_outlined,
-                    accentColor: AppColors.warning,
                   ),
                 ],
               ),
               const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
-              // Quick Actions
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: AppColors.cardBorder),
+  Widget _activityCard({
+    required IconData icon,
+    required String title,
+    required String value,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF0F1F5),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: AppColors.textPrimary, size: 20),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.verified_user_rounded,
-                        color: AppColors.primaryLight,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('KYC Verification Active', style: AppTypography.titleMedium),
-                          Text('All delivery and wallet tiers verified', style: AppTypography.bodyMedium),
-                        ],
-                      ),
-                    ),
-                    const Icon(Icons.chevron_right_rounded, color: AppColors.textTertiary),
-                  ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }

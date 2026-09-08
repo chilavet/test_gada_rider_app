@@ -3,17 +3,17 @@ import 'app_colors.dart';
 import 'app_typography.dart';
 
 class AppTheme {
-  static ThemeData get darkTheme {
+  static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.background,
-      primaryColor: AppColors.primary,
+      primaryColor: AppColors.darkCta,
       cardColor: AppColors.surface,
       dividerColor: AppColors.cardBorder,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary,
-        secondary: AppColors.primaryLight,
+      colorScheme: const ColorScheme.light(
+        primary: AppColors.darkCta,
+        secondary: AppColors.primary,
         surface: AppColors.surface,
         onPrimary: Colors.white,
         onSurface: AppColors.textPrimary,
@@ -22,14 +22,15 @@ class AppTheme {
         backgroundColor: AppColors.background,
         elevation: 0,
         centerTitle: false,
+        scrolledUnderElevation: 0,
         iconTheme: IconThemeData(color: AppColors.textPrimary),
         titleTextStyle: AppTypography.headlineMedium,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: AppColors.darkCta,
           foregroundColor: Colors.white,
-          minimumSize: const Size(0, 52),
+          minimumSize: const Size(0, 54),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           elevation: 0,
           shape: RoundedRectangleBorder(
@@ -46,7 +47,7 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.textPrimary,
           side: const BorderSide(color: AppColors.cardBorder, width: 1.5),
-          minimumSize: const Size(0, 52),
+          minimumSize: const Size(0, 54),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -72,7 +73,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+          borderSide: const BorderSide(color: AppColors.darkCta, width: 1.5),
         ),
       ),
     );
