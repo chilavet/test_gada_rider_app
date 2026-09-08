@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_colors.dart';
 import '../../widgets/gada_logo.dart';
 import '../main_rider_shell.dart';
@@ -43,12 +44,13 @@ class LeaseSuccessScreen extends StatelessWidget {
 
               // Location text
               const Text(
-                'Location: 123 Plot 123, Wuse 2, Abuja',
+                'Location: ${AppConstants.officeLocation}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
                   color: AppColors.textSecondary,
                   fontWeight: FontWeight.w500,
+                  height: 1.4,
                 ),
               ),
               const SizedBox(height: 20),
@@ -58,7 +60,7 @@ class LeaseSuccessScreen extends StatelessWidget {
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Opening GADA Logistics Depot on Maps...'),
+                      content: Text('Opening Gadaride Office (Hillside Plaza, Asokoro, Abuja) on Maps...'),
                       duration: Duration(seconds: 2),
                     ),
                   );

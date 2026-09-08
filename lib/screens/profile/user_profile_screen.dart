@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_colors.dart';
 import '../../state/rider_scope.dart';
 
@@ -99,7 +100,11 @@ class UserProfileScreen extends StatelessWidget {
               title: 'Contact support',
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Support Hotline: +234 800 4232 7433')),
+                  const SnackBar(
+                    content: Text(
+                      'Support: ${AppConstants.supportPhone} • Head Office: ${AppConstants.officeLocationShort}',
+                    ),
+                  ),
                 );
               },
             ),

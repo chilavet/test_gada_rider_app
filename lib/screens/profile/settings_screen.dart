@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_colors.dart';
 import '../../state/rider_scope.dart';
 import '../../state/rider_state.dart';
@@ -108,6 +109,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icons.info_outline_rounded,
                     title: 'App Version',
                     value: '1.0.0 (Build 42)',
+                  ),
+                  _divider(context),
+                  _infoTile(
+                    context: context,
+                    icon: Icons.location_on_outlined,
+                    title: 'Head Office',
+                    value: AppConstants.officeLocationShort,
                   ),
                   _divider(context),
                   _actionTile(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:test_gada_rider_app/core/constants/app_constants.dart';
 import 'package:test_gada_rider_app/core/theme/app_theme.dart';
 import 'package:test_gada_rider_app/models/lease_bike.dart';
 import 'package:test_gada_rider_app/screens/lease/lease_application_screen.dart';
@@ -98,6 +99,6 @@ void main() {
     expect(state.appliedBikes.contains(bike.id), isTrue);
     expect(find.byType(LeaseSuccessScreen), findsOneWidget);
     expect(find.text('Visit our office to complete your application'), findsOneWidget);
-    expect(find.text('Location: 123 Plot 123, Wuse 2, Abuja'), findsOneWidget);
+    expect(find.text('Location: ${AppConstants.officeLocation}'), findsOneWidget);
   });
 }
