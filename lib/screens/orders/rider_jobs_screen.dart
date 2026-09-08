@@ -5,6 +5,7 @@ import '../../models/delivery_job.dart';
 import '../../state/rider_scope.dart';
 import 'agent_order_tracking_screen.dart';
 import 'delivery_map_screen.dart';
+import 'navigate_to_location_screen.dart';
 
 class RiderJobsScreen extends StatelessWidget {
   const RiderJobsScreen({super.key});
@@ -62,15 +63,34 @@ class RiderJobsScreen extends StatelessWidget {
                     Text('Pickup: ${activeJob.pickupName}', style: AppTypography.bodyLarge),
                     Text('Dropoff: ${activeJob.dropoffName}', style: AppTypography.bodyMedium),
                     const SizedBox(height: 14),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const DeliveryMapScreen()),
-                        );
-                      },
-                      icon: const Icon(Icons.navigation_rounded, size: 18),
-                      label: const Text('Open Active Route Map'),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const DeliveryMapScreen()),
+                              );
+                            },
+                            icon: const Icon(Icons.navigation_rounded, size: 18),
+                            label: const Text('Live Route Map'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton.outlined(
+                          tooltip: 'Order Journey & Stepper (Figma 973:12383)',
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => NavigateToLocationScreen(job: activeJob),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.alt_route_rounded),
+                        ),
+                      ],
                     ),
                   ],
                 ),

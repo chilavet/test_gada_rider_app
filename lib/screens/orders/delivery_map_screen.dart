@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../core/utils/navigation_launcher.dart';
 import '../../models/delivery_job.dart';
 import '../../state/rider_scope.dart';
-import '../../widgets/interactive_map_canvas.dart';
+import '../../widgets/gmp_live_map.dart';
+import 'navigate_to_location_screen.dart';
 
 class DeliveryMapScreen extends StatelessWidget {
   const DeliveryMapScreen({super.key});
@@ -22,27 +25,27 @@ class DeliveryMapScreen extends StatelessWidget {
       );
     }
 
-    double progress = 0.2;
+    double progress = 0.25;
     String actionLabel = 'Arrived at Pickup Store';
-    String stageDescription = 'Heading to Wuse Market to collect package';
+    String stageDescription = 'Heading to ${job.pickupName} to collect package';
 
     switch (job.status) {
       case JobStatus.accepted:
       case JobStatus.enRouteToPickup:
         progress = 0.25;
         actionLabel = 'Arrived at Pickup Store';
-        stageDescription = 'Heading to Wuse Market to collect package';
+        stageDescription = 'Heading to ${job.pickupName} to collect package';
         break;
       case JobStatus.arrivedAtPickup:
-        progress = 0.40;
+        progress = 0.45;
         actionLabel = 'Confirm Items Picked Up';
-        stageDescription = 'At Wuse Market • Collecting packed order';
+        stageDescription = 'At ${job.pickupName} • Collecting packed order';
         break;
       case JobStatus.orderPickedUp:
       case JobStatus.enRouteToDropoff:
-        progress = 0.70;
+        progress = 0.75;
         actionLabel = 'Confirm Delivery ✓';
-        stageDescription = 'On the way to 12 Aminu Kano Crescent';
+        stageDescription = 'On the way to ${job.dropoffAddress}';
         break;
       case JobStatus.delivered:
         progress = 1.0;
@@ -56,12 +59,14 @@ class DeliveryMapScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          // 1. Live Map Canvas (Full Screen)
+          // 1. Live Google Maps View (Full Screen with GPS Coordinates)
           Positioned.fill(
-            child: InteractiveMapCanvas(
-              progress: progress,
+            child: GMPLiveMap(
+              pickupLocation: LatLng(job.pickupLatitude, job.pickupLongitude),
+              dropoffLocation: LatLng(job.dropoffLatitude, job.dropoffLongitude),
               pickupLabel: job.pickupName,
               dropoffLabel: job.dropoffName,
+              progress: progress,
             ),
           ),
 
@@ -78,9 +83,9 @@ class DeliveryMapScreen extends StatelessWidget {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        color: AppColors.surface.withValues(alpha: 0.9),
+                        color: AppColors.getSurface(context).withValues(alpha: 0.92),
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.cardBorder),
+                        border: Border.all(color: AppColors.getCardBorder(context)),
                       ),
                       child: IconButton(
                         icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
@@ -90,9 +95,9 @@ class DeliveryMapScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
-                        color: AppColors.surface.withValues(alpha: 0.9),
+                        color: AppColors.getSurface(context).withValues(alpha: 0.92),
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.cardBorder),
+                        border: Border.all(color: AppColors.getCardBorder(context)),
                       ),
                       child: Row(
                         children: [
@@ -107,8 +112,8 @@ class DeliveryMapScreen extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             job.orderNumber,
-                            style: const TextStyle(
-                              color: AppColors.textPrimary,
+                            style: TextStyle(
+                              color: AppColors.getTextPrimary(context),
                               fontWeight: FontWeight.w700,
                               fontSize: 13,
                             ),
@@ -118,17 +123,13 @@ class DeliveryMapScreen extends StatelessWidget {
                     ),
                     Container(
                       decoration: BoxDecoration(
-                        color: AppColors.surface.withValues(alpha: 0.9),
+                        color: AppColors.getSurface(context).withValues(alpha: 0.92),
                         shape: BoxShape.circle,
-                        border: Border.all(color: AppColors.cardBorder),
+                        border: Border.all(color: AppColors.getCardBorder(context)),
                       ),
                       child: IconButton(
                         icon: const Icon(Icons.phone_rounded, color: AppColors.onlineGreen, size: 20),
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Calling ${job.customerName} (${job.customerPhone})...')),
-                          );
-                        },
+                        onPressed: () => NavigationLauncher.launchCall(job.customerPhone),
                       ),
                     ),
                   ],
@@ -137,7 +138,49 @@ class DeliveryMapScreen extends StatelessWidget {
             ),
           ),
 
-          // 3. Floating Bottom Delivery Card
+          // 3. Floating Quick Actions (Figma 973:12383 Link & External GPS)
+          Positioned(
+            top: 76,
+            right: 16,
+            child: SafeArea(
+              child: Column(
+                children: [
+                  FloatingActionButton.small(
+                    heroTag: 'fab_stepper',
+                    backgroundColor: AppColors.getSurface(context),
+                    foregroundColor: AppColors.getTextPrimary(context),
+                    tooltip: 'View Order Journey & Stepper',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => NavigateToLocationScreen(job: job),
+                        ),
+                      );
+                    },
+                    child: const Icon(Icons.alt_route_rounded, size: 20),
+                  ),
+                  const SizedBox(height: 8),
+                  FloatingActionButton.small(
+                    heroTag: 'fab_external_gps',
+                    backgroundColor: AppColors.darkCta,
+                    foregroundColor: Colors.white,
+                    tooltip: 'Open in External Google / Apple Maps',
+                    onPressed: () {
+                      NavigationLauncher.launchNavigation(
+                        latitude: job.dropoffLatitude,
+                        longitude: job.dropoffLongitude,
+                        label: job.dropoffAddress,
+                      );
+                    },
+                    child: const Icon(Icons.directions_rounded, size: 20),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // 4. Floating Bottom Delivery Card
           Positioned(
             left: 16,
             right: 16,
@@ -147,12 +190,12 @@ class DeliveryMapScreen extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: AppColors.getSurface(context),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: AppColors.cardBorder, width: 1.5),
+                  border: Border.all(color: AppColors.getCardBorder(context), width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.5),
+                      color: Colors.black.withValues(alpha: 0.35),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
@@ -162,7 +205,7 @@ class DeliveryMapScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Stage Pill
+                    // Stage Pill & ETA
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -175,7 +218,7 @@ class DeliveryMapScreen extends StatelessWidget {
                           child: Text(
                             'STAGE: ${job.status.name.toUpperCase()}',
                             style: const TextStyle(
-                              color: AppColors.primaryLight,
+                              color: AppColors.primary,
                               fontSize: 10,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 0.5,
@@ -184,7 +227,11 @@ class DeliveryMapScreen extends StatelessWidget {
                         ),
                         Text(
                           '${job.estimatedTimeMinutes} mins remaining',
-                          style: AppTypography.labelSmall,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.getTextSecondary(context),
+                          ),
                         ),
                       ],
                     ),
@@ -196,21 +243,30 @@ class DeliveryMapScreen extends StatelessWidget {
                         Container(
                           width: 44,
                           height: 44,
-                          decoration: const BoxDecoration(
-                            color: AppColors.surfaceLight,
+                          decoration: BoxDecoration(
+                            color: AppColors.getSurfaceElevated(context),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.person_rounded, color: AppColors.textPrimary),
+                          child: Icon(Icons.person_rounded, color: AppColors.getTextPrimary(context)),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(job.customerName, style: AppTypography.titleMedium),
+                              Text(
+                                job.customerName,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
                               Text(
                                 job.dropoffAddress,
-                                style: AppTypography.bodyMedium,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.getTextSecondary(context),
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -219,11 +275,15 @@ class DeliveryMapScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
 
                     Text(
                       stageDescription,
-                      style: AppTypography.bodyMedium.copyWith(color: AppColors.textPrimary),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.getTextPrimary(context),
+                      ),
                     ),
                     const SizedBox(height: 16),
 
@@ -231,15 +291,31 @@ class DeliveryMapScreen extends StatelessWidget {
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.onlineGreen,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
                         ),
                         onPressed: () {
                           state.dismissCompletedJob();
                           Navigator.pop(context);
                         },
-                        child: const Text('Back to Home Dashboard'),
+                        child: const Text(
+                          'Back to Home Dashboard',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
                       ),
                     ] else ...[
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.darkCta,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
                         onPressed: () {
                           state.advanceJobStatus();
                           if (state.activeJob?.status == JobStatus.delivered) {
@@ -251,7 +327,10 @@ class DeliveryMapScreen extends StatelessWidget {
                             );
                           }
                         },
-                        child: Text(actionLabel),
+                        child: Text(
+                          actionLabel,
+                          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                        ),
                       ),
                     ],
                   ],

@@ -6,6 +6,7 @@ import '../../state/rider_scope.dart';
 import '../../widgets/gada_logo.dart';
 import '../../widgets/job_alert_sheet.dart';
 import '../orders/delivery_map_screen.dart';
+import '../orders/navigate_to_location_screen.dart';
 
 class RiderHomeScreen extends StatelessWidget {
   const RiderHomeScreen({super.key});
@@ -363,17 +364,36 @@ class RiderHomeScreen extends StatelessWidget {
                     if (state.activeJob != null &&
                         state.activeJob!.status != JobStatus.delivered &&
                         state.activeJob!.status != JobStatus.incomingAlert) ...[
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const DeliveryMapScreen(),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const DeliveryMapScreen(),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.navigation_rounded, size: 18),
+                              label: const Text('Live Route Map'),
                             ),
-                          );
-                        },
-                        icon: const Icon(Icons.navigation_rounded, size: 18),
-                        label: const Text('Open Active Route Map'),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton.outlined(
+                            tooltip: 'View Order Journey & Stepper (Figma 973:12383)',
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const NavigateToLocationScreen(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.alt_route_rounded),
+                          ),
+                        ],
                       ),
                     ] else ...[
                       OutlinedButton.icon(

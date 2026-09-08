@@ -24,6 +24,12 @@ class DeliveryJob {
   final int itemCount;
   final String customerName;
   final String customerPhone;
+  final double pickupLatitude;
+  final double pickupLongitude;
+  final double dropoffLatitude;
+  final double dropoffLongitude;
+  final String merchantName;
+  final String merchantPhone;
   final JobStatus status;
   final DateTime createdAt;
 
@@ -41,6 +47,12 @@ class DeliveryJob {
     required this.itemCount,
     required this.customerName,
     required this.customerPhone,
+    this.pickupLatitude = 9.0667,
+    this.pickupLongitude = 7.4500,
+    this.dropoffLatitude = 9.0782,
+    this.dropoffLongitude = 7.4725,
+    this.merchantName = 'Mama Nkechi’s Kitchen',
+    this.merchantPhone = '08091234567',
     this.status = JobStatus.incomingAlert,
     required this.createdAt,
   });
@@ -59,6 +71,12 @@ class DeliveryJob {
     int? itemCount,
     String? customerName,
     String? customerPhone,
+    double? pickupLatitude,
+    double? pickupLongitude,
+    double? dropoffLatitude,
+    double? dropoffLongitude,
+    String? merchantName,
+    String? merchantPhone,
     JobStatus? status,
     DateTime? createdAt,
   }) {
@@ -76,8 +94,15 @@ class DeliveryJob {
       itemCount: itemCount ?? this.itemCount,
       customerName: customerName ?? this.customerName,
       customerPhone: customerPhone ?? this.customerPhone,
+      pickupLatitude: pickupLatitude ?? this.pickupLatitude,
+      pickupLongitude: pickupLongitude ?? this.pickupLongitude,
+      dropoffLatitude: dropoffLatitude ?? this.dropoffLatitude,
+      dropoffLongitude: dropoffLongitude ?? this.dropoffLongitude,
+      merchantName: merchantName ?? this.merchantName,
+      merchantPhone: merchantPhone ?? this.merchantPhone,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
     );
   }
 }
+
