@@ -7,12 +7,23 @@ import 'mock_data.dart';
 
 class RiderState extends ChangeNotifier {
   bool _isOnline = true;
-  String _activeRole = 'Rider'; // 'Rider' or 'Agent'
+  String _activeRole = 'Rider'; // 'Rider', 'Agent', or 'Lease'
   DeliveryJob? _activeJob;
   bool _hasIncomingAlert = false;
   final List<OrderItem> _shoppingBasket = List.from(MockData.defaultMarketBasket);
   RiderStats _stats = MockData.defaultStats;
   final List<PayoutRecord> _payouts = List.from(MockData.payoutLedger);
+
+  // Auth & KYC State
+  bool _isAuthenticated = true;
+  String _userPhoneNumber = '080123456789';
+  bool _kycPersonalInfoDone = true;
+  bool _kycIdentityDone = false;
+  bool _kycVehicleDone = false;
+  bool _kycBankDone = false;
+
+  // Lease State
+  final List<String> _appliedBikes = [];
 
   bool get isOnline => _isOnline;
   String get activeRole => _activeRole;
@@ -21,6 +32,53 @@ class RiderState extends ChangeNotifier {
   List<OrderItem> get shoppingBasket => List.unmodifiable(_shoppingBasket);
   RiderStats get stats => _stats;
   List<PayoutRecord> get payouts => List.unmodifiable(_payouts);
+
+  bool get isAuthenticated => _isAuthenticated;
+  String get userPhoneNumber => _userPhoneNumber;
+  bool get kycPersonalInfoDone => _kycPersonalInfoDone;
+  bool get kycIdentityDone => _kycIdentityDone;
+  bool get kycVehicleDone => _kycVehicleDone;
+  bool get kycBankDone => _kycBankDone;
+  List<String> get appliedBikes => List.unmodifiable(_appliedBikes);
+
+  void authenticate(String phone) {
+    _userPhoneNumber = phone;
+    _isAuthenticated = true;
+    notifyListeners();
+  }
+
+  void logout() {
+    _isAuthenticated = false;
+    _isOnline = false;
+    _activeJob = null;
+    _hasIncomingAlert = false;
+    notifyListeners();
+  }
+
+  void completeKycStep(String step) {
+    switch (step) {
+      case 'personal':
+        _kycPersonalInfoDone = true;
+        break;
+      case 'identity':
+        _kycIdentityDone = true;
+        break;
+      case 'vehicle':
+        _kycVehicleDone = true;
+        break;
+      case 'bank':
+        _kycBankDone = true;
+        break;
+    }
+    notifyListeners();
+  }
+
+  void submitLeaseApplication(String bikeId) {
+    if (!_appliedBikes.contains(bikeId)) {
+      _appliedBikes.add(bikeId);
+      notifyListeners();
+    }
+  }
 
   void toggleOnline() {
     _isOnline = !_isOnline;

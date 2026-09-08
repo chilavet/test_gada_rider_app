@@ -3,6 +3,10 @@ import 'package:intl/intl.dart';
 import '../../core/theme/app_colors.dart';
 import '../../state/rider_scope.dart';
 
+import '../auth/get_started_screen.dart';
+import '../auth/kyc_documents_screen.dart';
+import '../lease/lease_home_screen.dart';
+
 class UserProfileScreen extends StatelessWidget {
   const UserProfileScreen({super.key});
 
@@ -44,7 +48,27 @@ class UserProfileScreen extends StatelessWidget {
             _menuTile(
               icon: Icons.description_outlined,
               title: 'Documents & KYC',
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => KycDocumentsScreen(roleName: state.activeRole),
+                  ),
+                );
+              },
+            ),
+            _menuTile(
+              icon: Icons.two_wheeler_rounded,
+              title: 'Browse Vehicle Leases',
+              trailingText: '${state.appliedBikes.length} Applied',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const LeaseHomeScreen(),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 16),
 
@@ -53,7 +77,11 @@ class UserProfileScreen extends StatelessWidget {
             _menuTile(
               icon: Icons.headset_mic_outlined,
               title: 'Contact support',
-              onTap: () {},
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Support Hotline: +234 800 4232 7433')),
+                );
+              },
             ),
             _menuTile(
               icon: Icons.settings_outlined,
@@ -69,6 +97,19 @@ class UserProfileScreen extends StatelessWidget {
               icon: Icons.article_outlined,
               title: 'Terms of use',
               onTap: () {},
+            ),
+            _menuTile(
+              icon: Icons.logout_rounded,
+              title: 'Log Out / Switch Account',
+              onTap: () {
+                state.logout();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const GetStartedScreen(),
+                  ),
+                );
+              },
             ),
 
             const SizedBox(height: 24),
