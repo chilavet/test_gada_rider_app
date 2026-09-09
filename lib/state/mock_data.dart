@@ -2,6 +2,7 @@ import '../models/delivery_job.dart';
 import '../models/order_item.dart';
 import '../models/rider_stats.dart';
 import '../models/payout_record.dart';
+import '../models/notification_item.dart';
 
 class MockData {
   static RiderStats defaultStats = const RiderStats(
@@ -120,6 +121,59 @@ class MockData {
       description: 'Trip Payout - Garki 2 Delivery',
       amount: 1950.00,
       timestamp: DateTime.now().subtract(const Duration(days: 1, hours: 3)),
+    ),
+  ];
+
+  static List<NotificationItem> defaultNotifications = [
+    NotificationItem(
+      id: 'notif-1',
+      title: 'New Order Dispatch Alert',
+      message: 'New order #GDA-8921 available in Wuse Market (₦1,850 delivery fee). Accept now before expiry!',
+      timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
+      type: NotificationType.order,
+      isRead: false,
+      actionLabel: 'View Order',
+      actionTarget: 'job',
+    ),
+    NotificationItem(
+      id: 'notif-2',
+      title: 'Payout Credited to Wallet',
+      message: '₦4,500 has been credited to your wallet for completed market run #GDA-8908.',
+      timestamp: DateTime.now().subtract(const Duration(hours: 3)),
+      type: NotificationType.payout,
+      isRead: false,
+      actionLabel: 'View Earnings',
+      actionTarget: 'earnings',
+    ),
+    NotificationItem(
+      id: 'notif-3',
+      title: '⚡ Evening Surge Bonus Active',
+      message: 'Earn 1.2x on all deliveries picked up in Wuse and Maitama districts between 5:00 PM and 8:00 PM!',
+      timestamp: DateTime.now().subtract(const Duration(hours: 5)),
+      type: NotificationType.system,
+      isRead: false,
+      actionLabel: null,
+      actionTarget: null,
+    ),
+    NotificationItem(
+      id: 'notif-4',
+      title: 'KYC Document Approved',
+      message: 'Your Rider Identity and Vehicle documents have been successfully verified.',
+      timestamp: DateTime.now().subtract(const Duration(days: 1)),
+      type: NotificationType.kyc,
+      isRead: true,
+      actionLabel: 'View Profile',
+      actionTarget: 'profile',
+    ),
+    NotificationItem(
+      id: 'notif-5',
+      title: 'Daily Goal Achieved! 🎯',
+      message: 'Congratulations! You reached your daily target of 3 trips yesterday.',
+      timestamp: DateTime.now().subtract(const Duration(days: 1, hours: 12)),
+      type: NotificationType.system,
+      isRead: true,
+      actionLabel: null,
+      actionTarget: null,
     ),
   ];
 

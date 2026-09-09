@@ -5,6 +5,7 @@ import '../../models/delivery_job.dart';
 import '../../state/rider_scope.dart';
 import '../../widgets/gada_logo.dart';
 import '../../widgets/job_alert_sheet.dart';
+import '../notifications/notifications_screen.dart';
 import '../orders/delivery_map_screen.dart';
 import '../orders/navigate_to_location_screen.dart';
 
@@ -81,18 +82,76 @@ class RiderHomeScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Container(
-                        width: 44,
-                        height: 44,
-                        decoration: BoxDecoration(
-                          color: AppColors.getSurface(context),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.getCardBorder(context)),
-                        ),
-                        child: Icon(
-                          Icons.notifications_none_rounded,
-                          color: AppColors.getTextPrimary(context),
-                          size: 22,
+                      // Notification Bell Button with Unread Badge
+                      GestureDetector(
+                        key: const Key('notification_bell_button'),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const NotificationsScreen(),
+                            ),
+                          );
+                        },
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                color: AppColors.getSurface(context),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: AppColors.getCardBorder(context)),
+                              ),
+                              child: Icon(
+                                state.unreadNotificationCount > 0
+                                    ? Icons.notifications_active_rounded
+                                    : Icons.notifications_none_rounded,
+                                color: state.unreadNotificationCount > 0
+                                    ? AppColors.primary
+                                    : AppColors.getTextPrimary(context),
+                                size: 22,
+                              ),
+                            ),
+                            if (state.unreadNotificationCount > 0)
+                              Positioned(
+                                top: -2,
+                                right: -2,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 18,
+                                    minHeight: 18,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: AppColors.getSurface(context),
+                                      width: 2,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.primary.withValues(alpha: 0.4),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      '${state.unreadNotificationCount > 9 ? '9+' : state.unreadNotificationCount}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w800,
+                                        height: 1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
                       ),
                     ],

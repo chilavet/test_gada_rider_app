@@ -3,6 +3,7 @@ import '../models/delivery_job.dart';
 import '../models/order_item.dart';
 import '../models/rider_stats.dart';
 import '../models/payout_record.dart';
+import '../models/notification_item.dart';
 import 'mock_data.dart';
 
 class RiderState extends ChangeNotifier {
@@ -13,6 +14,7 @@ class RiderState extends ChangeNotifier {
   final List<OrderItem> _shoppingBasket = List.from(MockData.defaultMarketBasket);
   RiderStats _stats = MockData.defaultStats;
   final List<PayoutRecord> _payouts = List.from(MockData.payoutLedger);
+  final List<NotificationItem> _notifications = List.from(MockData.defaultNotifications);
 
   // Theme Mode (Day / Night Mode)
   ThemeMode _themeMode = ThemeMode.light;
@@ -40,6 +42,46 @@ class RiderState extends ChangeNotifier {
   List<PayoutRecord> get payouts => List.unmodifiable(_payouts);
 
   UserProfile get userProfile => _userProfile;
+  List<NotificationItem> get notifications => List.unmodifiable(_notifications);
+  int get unreadNotificationCount => _notifications.where((n) => !n.isRead).length;
+
+  void markNotificationAsRead(String id) {
+    final index = _notifications.indexWhere((n) => n.id == id);
+    if (index != -1 && !_notifications[index].isRead) {
+      _notifications[index] = _notifications[index].copyWith(isRead: true);
+      notifyListeners();
+    }
+  }
+
+  void markAllNotificationsAsRead() {
+    bool changed = false;
+    for (int i = 0; i < _notifications.length; i++) {
+      if (!_notifications[i].isRead) {
+        _notifications[i] = _notifications[i].copyWith(isRead: true);
+        changed = true;
+      }
+    }
+    if (changed) {
+      notifyListeners();
+    }
+  }
+
+  void deleteNotification(String id) {
+    _notifications.removeWhere((n) => n.id == id);
+    notifyListeners();
+  }
+
+  void clearAllNotifications() {
+    if (_notifications.isNotEmpty) {
+      _notifications.clear();
+      notifyListeners();
+    }
+  }
+
+  void addNotification(NotificationItem notification) {
+    _notifications.insert(0, notification);
+    notifyListeners();
+  }
 
   ThemeMode get themeMode => _themeMode;
   bool get isNightMode => _themeMode == ThemeMode.dark;
@@ -148,6 +190,19 @@ class RiderState extends ChangeNotifier {
     }
     _activeJob = MockData.defaultJob.copyWith(status: JobStatus.incomingAlert);
     _hasIncomingAlert = true;
+    _notifications.insert(
+      0,
+      NotificationItem(
+        id: 'notif-${DateTime.now().millisecondsSinceEpoch}',
+        title: 'New Order Available',
+        message: 'New delivery #${_activeJob!.orderNumber} available in ${_activeJob!.pickupName} (₦${_activeJob!.deliveryFee.toStringAsFixed(0)} fee).',
+        timestamp: DateTime.now(),
+        type: NotificationType.order,
+        isRead: false,
+        actionLabel: 'View Order',
+        actionTarget: 'job',
+      ),
+    );
     notifyListeners();
   }
 
@@ -213,6 +268,19 @@ class RiderState extends ChangeNotifier {
         description: 'Trip Payout - ${_activeJob!.dropoffName}',
         amount: fee,
         timestamp: DateTime.now(),
+      ),
+    );
+    _notifications.insert(
+      0,
+      NotificationItem(
+        id: 'notif-${DateTime.now().millisecondsSinceEpoch}',
+        title: 'Trip Completed & Payout Credited',
+        message: '₦${fee.toStringAsFixed(0)} delivery fee credited to your wallet for Order ${_activeJob!.orderNumber}.',
+        timestamp: DateTime.now(),
+        type: NotificationType.payout,
+        isRead: false,
+        actionLabel: 'View Earnings',
+        actionTarget: 'earnings',
       ),
     );
   }
