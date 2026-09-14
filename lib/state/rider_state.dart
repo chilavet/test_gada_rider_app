@@ -4,6 +4,7 @@ import '../models/order_item.dart';
 import '../models/rider_stats.dart';
 import '../models/payout_record.dart';
 import '../models/notification_item.dart';
+import '../services/alert_audio_service.dart';
 import 'mock_data.dart';
 
 class RiderState extends ChangeNotifier {
@@ -207,6 +208,7 @@ class RiderState extends ChangeNotifier {
   }
 
   void acceptJob() {
+    AlertAudioService.instance.stopAlert();
     if (_activeJob != null) {
       _activeJob = _activeJob!.copyWith(status: JobStatus.accepted);
       _hasIncomingAlert = false;
@@ -215,6 +217,7 @@ class RiderState extends ChangeNotifier {
   }
 
   void declineJob() {
+    AlertAudioService.instance.stopAlert();
     _activeJob = null;
     _hasIncomingAlert = false;
     notifyListeners();

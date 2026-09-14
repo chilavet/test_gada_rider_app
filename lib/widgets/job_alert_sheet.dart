@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
 import '../models/delivery_job.dart';
+import '../services/alert_audio_service.dart';
 
 class JobAlertSheet extends StatefulWidget {
   final DeliveryJob job;
@@ -28,11 +29,13 @@ class _JobAlertSheetState extends State<JobAlertSheet> {
   @override
   void initState() {
     super.initState();
+    AlertAudioService.instance.playIncomingOrderAlert();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_countdownSeconds > 1) {
         setState(() => _countdownSeconds--);
       } else {
         timer.cancel();
+        AlertAudioService.instance.stopAlert();
         widget.onDecline();
       }
     });
@@ -40,6 +43,7 @@ class _JobAlertSheetState extends State<JobAlertSheet> {
 
   @override
   void dispose() {
+    AlertAudioService.instance.stopAlert();
     _timer?.cancel();
     super.dispose();
   }
