@@ -38,19 +38,27 @@ class _InteractiveMapCanvasState extends State<InteractiveMapCanvas>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _pulseController,
-      builder: (context, child) {
-        return CustomPaint(
-          size: Size.infinite,
-          painter: _MapCanvasPainter(
-            progress: widget.progress,
-            pulse: _pulseController.value,
-            pickupLabel: widget.pickupLabel,
-            dropoffLabel: widget.dropoffLabel,
-          ),
-        );
-      },
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return InteractiveViewer(
+      minScale: 0.8,
+      maxScale: 2.5,
+      boundaryMargin: const EdgeInsets.all(60),
+      child: AnimatedBuilder(
+        animation: _pulseController,
+        builder: (context, child) {
+          return CustomPaint(
+            size: Size.infinite,
+            painter: _MapCanvasPainter(
+              progress: widget.progress,
+              pulse: _pulseController.value,
+              pickupLabel: widget.pickupLabel,
+              dropoffLabel: widget.dropoffLabel,
+              isDark: isDark,
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -60,32 +68,38 @@ class _MapCanvasPainter extends CustomPainter {
   final double pulse;
   final String pickupLabel;
   final String dropoffLabel;
+  final bool isDark;
 
   _MapCanvasPainter({
     required this.progress,
     required this.pulse,
     required this.pickupLabel,
     required this.dropoffLabel,
+    required this.isDark,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    // 1. Dark Base
-    final bgPaint = Paint()..color = const Color(0xFF141416);
+    // 1. Theme-aware Base Background
+    final bgColor = isDark ? const Color(0xFF141416) : const Color(0xFFF3F4F7);
+    final bgPaint = Paint()..color = bgColor;
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
 
     // 2. City Grid & Street network
+    final minorRoadColor = isDark ? const Color(0xFF222228) : const Color(0xFFE4E6ED);
+    final majorRoadColor = isDark ? const Color(0xFF2E2E36) : const Color(0xFFD2D5E0);
+
     final roadMinorPaint = Paint()
-      ..color = const Color(0xFF222228)
+      ..color = minorRoadColor
       ..strokeWidth = 2.0
       ..style = PaintingStyle.stroke;
 
     final roadMajorPaint = Paint()
-      ..color = const Color(0xFF2E2E36)
+      ..color = majorRoadColor
       ..strokeWidth = 5.0
       ..style = PaintingStyle.stroke;
 
-    // Grid lines representing blocks
+    // Grid lines representing city blocks
     for (double x = 30; x < size.width; x += 60) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), roadMinorPaint);
     }
@@ -93,7 +107,7 @@ class _MapCanvasPainter extends CustomPainter {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), roadMinorPaint);
     }
 
-    // Diagonal avenues
+    // Diagonal avenues representing expressways
     canvas.drawLine(
       Offset(0, size.height * 0.8),
       Offset(size.width, size.height * 0.2),
@@ -124,7 +138,7 @@ class _MapCanvasPainter extends CustomPainter {
 
     // Route Outer Glow
     final routeGlowPaint = Paint()
-      ..color = AppColors.primary.withValues(alpha: 0.25)
+      ..color = AppColors.primary.withValues(alpha: isDark ? 0.25 : 0.15)
       ..strokeWidth = 10.0
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
@@ -157,7 +171,6 @@ class _MapCanvasPainter extends CustomPainter {
     canvas.drawCircle(endPoint, 9, dropoffBorderPaint);
 
     // 6. Current Rider Position along route
-    // Approximate position using cubic interpolation
     final t = progress.clamp(0.05, 0.95);
     final u = 1 - t;
     final riderX = u * u * u * startPoint.dx +
@@ -184,10 +197,50 @@ class _MapCanvasPainter extends CustomPainter {
       ..strokeWidth = 3
       ..style = PaintingStyle.stroke;
     canvas.drawCircle(riderPos, 7, riderRimPaint);
+
+    // 7. Text labels for markers
+    _drawLabel(canvas, pickupLabel, startPoint.translate(0, 14), isDark);
+    _drawLabel(canvas, dropoffLabel, endPoint.translate(0, -22), isDark);
+  }
+
+  void _drawLabel(Canvas canvas, String text, Offset position, bool isDark) {
+    if (text.isEmpty) return;
+    final textSpan = TextSpan(
+      text: text,
+      style: TextStyle(
+        color: isDark ? Colors.white70 : const Color(0xFF2C2D35),
+        fontSize: 10,
+        fontWeight: FontWeight.w700,
+      ),
+    );
+    final textPainter = TextPainter(
+      text: textSpan,
+      textDirection: TextDirection.ltr,
+    );
+    textPainter.layout(maxWidth: 140);
+    final bgRect = RRect.fromRectAndRadius(
+      Rect.fromCenter(
+        center: position,
+        width: textPainter.width + 12,
+        height: textPainter.height + 6,
+      ),
+      const Radius.circular(6),
+    );
+    final bgPaint = Paint()
+      ..color = (isDark ? const Color(0xFF1E1F28) : Colors.white).withValues(alpha: 0.85);
+    canvas.drawRRect(bgRect, bgPaint);
+    textPainter.paint(
+      canvas,
+      Offset(position.dx - textPainter.width / 2, position.dy - textPainter.height / 2),
+    );
   }
 
   @override
   bool shouldRepaint(covariant _MapCanvasPainter oldDelegate) {
-    return oldDelegate.progress != progress || oldDelegate.pulse != pulse;
+    return oldDelegate.progress != progress ||
+        oldDelegate.pulse != pulse ||
+        oldDelegate.isDark != isDark ||
+        oldDelegate.pickupLabel != pickupLabel ||
+        oldDelegate.dropoffLabel != dropoffLabel;
   }
 }

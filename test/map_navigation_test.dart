@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:test_gada_rider_app/core/constants/app_constants.dart';
 import 'package:test_gada_rider_app/core/theme/app_theme.dart';
 import 'package:test_gada_rider_app/models/delivery_job.dart';
@@ -7,6 +8,8 @@ import 'package:test_gada_rider_app/screens/orders/delivery_map_screen.dart';
 import 'package:test_gada_rider_app/screens/orders/navigate_to_location_screen.dart';
 import 'package:test_gada_rider_app/state/rider_scope.dart';
 import 'package:test_gada_rider_app/state/rider_state.dart';
+import 'package:test_gada_rider_app/widgets/gmp_live_map.dart';
+import 'package:test_gada_rider_app/widgets/interactive_map_canvas.dart';
 
 void main() {
   test('DeliveryJob model contains GPS coordinates and merchant info', () {
@@ -105,5 +108,95 @@ void main() {
     expect(find.text('John Doe'), findsOneWidget);
     expect(find.text('Arrived at Pickup Store'), findsOneWidget);
   });
+
+  testWidgets('GMPLiveMap renders GoogleMap on supported mobile platform', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 400,
+            height: 600,
+            child: GMPLiveMap(
+              pickupLabel: 'Wuse Market Section B',
+              dropoffLabel: 'Plot 12 Aminu Kano',
+              progress: 0.65,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(GMPLiveMap), findsOneWidget);
+    expect(find.byType(GoogleMap), findsOneWidget);
+    expect(find.text('Abuja Live GPS'), findsOneWidget);
+  });
+
+  testWidgets('GMPLiveMap gracefully renders InteractiveMapCanvas when forceCanvas is true', (tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: SizedBox(
+            width: 400,
+            height: 600,
+            child: GMPLiveMap(
+              pickupLabel: 'Wuse Market Section B',
+              dropoffLabel: 'Plot 12 Aminu Kano',
+              progress: 0.65,
+              forceCanvas: true,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(GMPLiveMap), findsOneWidget);
+    expect(find.byType(InteractiveMapCanvas), findsOneWidget);
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+  });
+
+  testWidgets('InteractiveMapCanvas renders properly in both light and dark themes', (tester) async {
+    // Test Light Theme
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.lightTheme,
+        home: const Scaffold(
+          body: SizedBox(
+            width: 360,
+            height: 500,
+            child: InteractiveMapCanvas(
+              progress: 0.3,
+              pickupLabel: 'Pickup Point',
+              dropoffLabel: 'Delivery Point',
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(InteractiveMapCanvas), findsOneWidget);
+    expect(find.byType(CustomPaint), findsWidgets);
+
+    // Test Dark Theme
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.darkTheme,
+        home: const Scaffold(
+          body: SizedBox(
+            width: 360,
+            height: 500,
+            child: InteractiveMapCanvas(
+              progress: 0.8,
+              pickupLabel: 'Pickup Point',
+              dropoffLabel: 'Delivery Point',
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(InteractiveMapCanvas), findsOneWidget);
+    expect(find.byType(CustomPaint), findsWidgets);
+  });
 }
+
 

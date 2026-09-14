@@ -1,3 +1,4 @@
+// Source: Google Maps Platform Code Assist
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,8 @@ class GMPLiveMap extends StatefulWidget {
   final double progress; // 0.0 to 1.0
   final bool enableZoomControls;
   final bool isInteractive;
+  final bool showMapControls;
+  final bool forceCanvas;
 
   const GMPLiveMap({
     super.key,
@@ -30,6 +33,8 @@ class GMPLiveMap extends StatefulWidget {
     this.progress = 0.45,
     this.enableZoomControls = false,
     this.isInteractive = true,
+    this.showMapControls = true,
+    this.forceCanvas = false,
   });
 
   @override
@@ -38,7 +43,22 @@ class GMPLiveMap extends StatefulWidget {
 
 class _GMPLiveMapState extends State<GMPLiveMap> {
   final Completer<GoogleMapController> _controllerCompleter = Completer();
-  final bool _mapRenderFailed = false;
+  bool _mapRenderFailed = false;
+  bool _isFollowingRider = false;
+
+  void _handleMapError() {
+    if (mounted && !_mapRenderFailed) {
+      setState(() {
+        _mapRenderFailed = true;
+      });
+    }
+  }
+
+  bool get _canUseGoogleMaps {
+    if (kIsWeb) return false;
+    return defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+  }
 
   LatLng get _riderLocation {
     // Interpolate rider location along line between pickup and dropoff
@@ -50,6 +70,32 @@ class _GMPLiveMapState extends State<GMPLiveMap> {
     final lat = pLat + (dLat - pLat) * widget.progress;
     final lng = pLng + (dLng - pLng) * widget.progress;
     return LatLng(lat, lng);
+  }
+
+  LatLng get _centerPoint {
+    return LatLng(
+      (widget.pickupLocation.latitude + widget.dropoffLocation.latitude) / 2,
+      (widget.pickupLocation.longitude + widget.dropoffLocation.longitude) / 2,
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant GMPLiveMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.progress != widget.progress ||
+        oldWidget.pickupLocation != widget.pickupLocation ||
+        oldWidget.dropoffLocation != widget.dropoffLocation) {
+      if (_controllerCompleter.isCompleted) {
+        _controllerCompleter.future.then((controller) {
+          if (!mounted) return;
+          if (_isFollowingRider) {
+            _animateToRider(controller);
+          } else {
+            _adjustCameraBounds(controller);
+          }
+        });
+      }
+    }
   }
 
   Set<Marker> _buildMarkers(BuildContext context) {
@@ -121,41 +167,99 @@ class _GMPLiveMapState extends State<GMPLiveMap> {
   }
 
   void _onMapCreated(GoogleMapController controller) {
-    _controllerCompleter.complete(controller);
-    _adjustCameraBounds(controller);
+    try {
+      if (!_controllerCompleter.isCompleted) {
+        _controllerCompleter.complete(controller);
+      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _adjustCameraBounds(controller);
+        }
+      });
+    } catch (_) {
+      _handleMapError();
+    }
   }
 
   Future<void> _adjustCameraBounds(GoogleMapController controller) async {
-    final southwestLat = widget.pickupLocation.latitude < widget.dropoffLocation.latitude
-        ? widget.pickupLocation.latitude
-        : widget.dropoffLocation.latitude;
-    final southwestLng = widget.pickupLocation.longitude < widget.dropoffLocation.longitude
-        ? widget.pickupLocation.longitude
-        : widget.dropoffLocation.longitude;
+    try {
+      final southwestLat = widget.pickupLocation.latitude < widget.dropoffLocation.latitude
+          ? widget.pickupLocation.latitude
+          : widget.dropoffLocation.latitude;
+      final southwestLng = widget.pickupLocation.longitude < widget.dropoffLocation.longitude
+          ? widget.pickupLocation.longitude
+          : widget.dropoffLocation.longitude;
 
-    final northeastLat = widget.pickupLocation.latitude > widget.dropoffLocation.latitude
-        ? widget.pickupLocation.latitude
-        : widget.dropoffLocation.latitude;
-    final northeastLng = widget.pickupLocation.longitude > widget.dropoffLocation.longitude
-        ? widget.pickupLocation.longitude
-        : widget.dropoffLocation.longitude;
+      final northeastLat = widget.pickupLocation.latitude > widget.dropoffLocation.latitude
+          ? widget.pickupLocation.latitude
+          : widget.dropoffLocation.latitude;
+      final northeastLng = widget.pickupLocation.longitude > widget.dropoffLocation.longitude
+          ? widget.pickupLocation.longitude
+          : widget.dropoffLocation.longitude;
 
-    final bounds = LatLngBounds(
-      southwest: LatLng(southwestLat - 0.004, southwestLng - 0.004),
-      northeast: LatLng(northeastLat + 0.004, northeastLng + 0.004),
-    );
+      final bounds = LatLngBounds(
+        southwest: LatLng(southwestLat - 0.004, southwestLng - 0.004),
+        northeast: LatLng(northeastLat + 0.004, northeastLng + 0.004),
+      );
 
-    await controller.animateCamera(
-      CameraUpdate.newLatLngBounds(bounds, 50.0),
-    );
+      await controller.animateCamera(
+        CameraUpdate.newLatLngBounds(bounds, 50.0),
+      );
+    } catch (_) {
+      try {
+        await controller.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(target: _centerPoint, zoom: 14.5),
+          ),
+        );
+      } catch (_) {}
+    }
+  }
+
+  Future<void> _animateToRider(GoogleMapController controller) async {
+    try {
+      await controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: _riderLocation, zoom: 16.0),
+        ),
+      );
+    } catch (_) {}
+  }
+
+  Future<void> _zoomIn() async {
+    if (_controllerCompleter.isCompleted) {
+      final controller = await _controllerCompleter.future;
+      controller.animateCamera(CameraUpdate.zoomIn());
+    }
+  }
+
+  Future<void> _zoomOut() async {
+    if (_controllerCompleter.isCompleted) {
+      final controller = await _controllerCompleter.future;
+      controller.animateCamera(CameraUpdate.zoomOut());
+    }
+  }
+
+  Future<void> _toggleRiderFocus() async {
+    setState(() {
+      _isFollowingRider = !_isFollowingRider;
+    });
+    if (_controllerCompleter.isCompleted) {
+      final controller = await _controllerCompleter.future;
+      if (_isFollowingRider) {
+        _animateToRider(controller);
+      } else {
+        _adjustCameraBounds(controller);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Graceful fallback if platform doesn't support Google Maps or map failed
-    if (_mapRenderFailed || kIsWeb) {
+    // Graceful fallback if platform doesn't support Google Maps natively, forced canvas, or map failed
+    if (widget.forceCanvas || !_canUseGoogleMaps || _mapRenderFailed) {
       return InteractiveMapCanvas(
         progress: widget.progress,
         pickupLabel: widget.pickupLabel,
@@ -163,16 +267,11 @@ class _GMPLiveMapState extends State<GMPLiveMap> {
       );
     }
 
-    final initialCenter = LatLng(
-      (widget.pickupLocation.latitude + widget.dropoffLocation.latitude) / 2,
-      (widget.pickupLocation.longitude + widget.dropoffLocation.longitude) / 2,
-    );
-
     return Stack(
       children: [
         GoogleMap(
           initialCameraPosition: CameraPosition(
-            target: initialCenter,
+            target: _centerPoint,
             zoom: 14.5,
           ),
           onMapCreated: _onMapCreated,
@@ -189,20 +288,36 @@ class _GMPLiveMapState extends State<GMPLiveMap> {
           tiltGesturesEnabled: false,
         ),
 
-        // Attribution Badge on top-right
+        // Attribution & GPS Status Badge on top-right
         Positioned(
           top: 12,
           right: 12,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.getSurface(context).withValues(alpha: 0.85),
+              color: AppColors.getSurface(context).withValues(alpha: 0.90),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.getCardBorder(context)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: AppColors.onlineGreen,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 5),
                 const Icon(Icons.pin_drop_rounded, size: 12, color: AppColors.primary),
                 const SizedBox(width: 4),
                 Text(
@@ -217,6 +332,89 @@ class _GMPLiveMapState extends State<GMPLiveMap> {
             ),
           ),
         ),
+
+        // Optional Quick Floating Map Controls (Recenter, Zoom)
+        if (widget.showMapControls)
+          Positioned(
+            left: 12,
+            top: 12,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Recenter / Toggle Rider Follow Button
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.getSurface(context).withValues(alpha: 0.92),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.getCardBorder(context)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.12),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    iconSize: 18,
+                    visualDensity: VisualDensity.compact,
+                    tooltip: _isFollowingRider ? 'View Route Overview' : 'Center on Rider',
+                    icon: Icon(
+                      _isFollowingRider ? Icons.navigation_rounded : Icons.my_location_rounded,
+                      color: _isFollowingRider ? AppColors.primary : AppColors.getTextPrimary(context),
+                    ),
+                    onPressed: _toggleRiderFocus,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                // Zoom In
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.getSurface(context).withValues(alpha: 0.92),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.getCardBorder(context)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.12),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    iconSize: 18,
+                    visualDensity: VisualDensity.compact,
+                    tooltip: 'Zoom In',
+                    icon: Icon(Icons.add_rounded, color: AppColors.getTextPrimary(context)),
+                    onPressed: _zoomIn,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                // Zoom Out
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.getSurface(context).withValues(alpha: 0.92),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: AppColors.getCardBorder(context)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.12),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    iconSize: 18,
+                    visualDensity: VisualDensity.compact,
+                    tooltip: 'Zoom Out',
+                    icon: Icon(Icons.remove_rounded, color: AppColors.getTextPrimary(context)),
+                    onPressed: _zoomOut,
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
